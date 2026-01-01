@@ -16,8 +16,7 @@ const navItems = [
 
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentScreen, onNavigate }) => {
   return (
-    // Fixed on small screens; static/relative flow on large screens to clamp to bottom of content
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 z-50 lg:relative lg:bottom-auto lg:left-0 lg:right-0 lg:shadow-none">
+    <nav className="w-full bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 z-50">
       <div className="max-w-[440px] mx-auto px-4">
         <div className="flex justify-around items-center h-16">
           {navItems.map((item) => {
