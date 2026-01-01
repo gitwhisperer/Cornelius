@@ -142,6 +142,21 @@ Instructions:
     }
   };
 
+  const clearAllHistory = () => {
+    if (!confirm('Clear all chat history? This cannot be undone.')) return;
+    setSessions([]);
+    setCurrentSessionId(null);
+    setMessages([]);
+    setInputText('');
+    setCurrentModel(null);
+    setShowHistory(false);
+    try {
+      localStorage.removeItem('smart_lecture_notes_history');
+    } catch (e) {
+      console.error('Failed to clear history from localStorage', e);
+    }
+  };"},{ 
+
   const updateSession = (id: string, newMessages: ChatMessage[], model: string | null) => {
     setSessions(prev => prev.map(session => {
       if (session.id === id) {
@@ -421,6 +436,16 @@ Instructions:
               </div>
               
               <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+                <button
+                  onClick={clearAllHistory}
+                  disabled={sessions.length === 0}
+                  className="w-full mb-3 py-2.5 px-4 bg-white dark:bg-transparent text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  title="Clear all chat history"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Clear All Chats
+                </button>
+
                 <button 
                   onClick={createNewChat}
                   className="w-full py-2.5 px-4 bg-gray-900 dark:bg-white text-white dark:text-black rounded-xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
