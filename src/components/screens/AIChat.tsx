@@ -155,7 +155,7 @@ Instructions:
     } catch (e) {
       console.error('Failed to clear history from localStorage', e);
     }
-  };"},{ 
+  };
 
   const updateSession = (id: string, newMessages: ChatMessage[], model: string | null) => {
     setSessions(prev => prev.map(session => {
