@@ -26,4 +26,3 @@ jobs:
           folder: build
           clean: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          keep_history: false
