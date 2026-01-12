@@ -19,6 +19,16 @@ jobs:
           node-version: '18'
       - run: npm ci
       - run: npm run build
+
+      - name: Ensure Pages source is gh-pages
+        run: |
+          echo "Setting Pages source to gh-pages..."
+          curl -s -X PUT \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/pages \
+            -d '{"source":{"branch":"gh-pages","path":"/"}}' | jq .
+
       - name: Deploy to gh-pages branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -26,3 +36,8 @@ jobs:
           folder: build
           clean: true
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get Pages URL
+        run: |
+          echo "Fetching Pages site info..."
+          curl -s -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/pages | jq .html_url
