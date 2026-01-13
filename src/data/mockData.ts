@@ -37,8 +37,50 @@ export const mockTimetable: TimetableEntry[] = [
     endTime: '11:30',
     room: 'Lab 3',
     professor: 'Dr. Chen'
+  },
+  {
+    id: '4',
+    subjectId: 'sub-os',
+    day: 'Wednesday',
+    startTime: '09:00',
+    endTime: '10:30',
+    room: 'LH-102',
+    professor: 'Dr. Robert Lee'
+  },
+  {
+    id: '5',
+    subjectId: 'sub-networks',
+    day: 'Thursday',
+    startTime: '14:00',
+    endTime: '15:30',
+    room: 'Room 204',
+    professor: 'Dr. Lisa Wang'
+  },
+  {
+    id: '6',
+    subjectId: 'sub-dsa',
+    day: 'Friday',
+    startTime: '11:00',
+    endTime: '12:30',
+    room: 'LH-201',
+    professor: 'Dr. Sarah Chen'
   }
 ];
+
+// Auto-generate upcoming lectures and assignments from timetable
+import { generateFromTimetable } from '../utils/schedule';
+const auto = generateFromTimetable(mockTimetable, mockSubjects, { weeksAhead: 8 });
+
+// Merge auto generated lectures and assignments if not already present
+const existingLectureIds = new Set(mockLectures.map((l) => l.id));
+for (const l of auto.lectures) {
+  if (!existingLectureIds.has(l.id)) mockLectures.push(l);
+}
+
+const existingAssignmentIds = new Set(mockAssignments.map((a) => a.id));
+for (const a of auto.assignments) {
+  if (!existingAssignmentIds.has(a.id)) mockAssignments.push(a);
+}
 
 // Mock Lectures
 export const mockLectures: Lecture[] = [
