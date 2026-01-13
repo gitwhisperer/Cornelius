@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Calendar as CalendarIcon, Clock, AlertTriangle, CheckCircle, MapPin, ChevronLeft, ChevronRight, List, CalendarDays } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, AlertTriangle, CheckCircle, MapPin, ChevronLeft, ChevronRight, List, CalendarDays, Sparkles, X } from 'lucide-react';
 import { StatusBadge } from '../shared/StatusBadge';
 import { formatDateShort, getTimeUntil, getDaysUntilExam } from '../../utils/helpers';
 import type { Assignment, Exam, Subject, Screen } from '../../types';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface TasksCalendarProps {
   assignments: Assignment[];
@@ -57,7 +58,7 @@ export const TasksCalendar: React.FC<TasksCalendarProps> = ({ assignments, exams
       const dueDate = new Date(assignment.dueDate);
       const now = new Date();
       const diffDays = (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-      
+
       let urgency: 'critical' | 'high' | 'medium' | 'low' = 'low';
       if (assignment.status === 'overdue') urgency = 'critical';
       else if (diffDays <= 1) urgency = 'critical';
@@ -138,10 +139,9 @@ export const TasksCalendar: React.FC<TasksCalendarProps> = ({ assignments, exams
   };
 
   const handleMarkComplete = async (assignmentId: string) => {
-    setLocalAssignments(prev => prev.map(a => 
+    setLocalAssignments(prev => prev.map(a =>
       a.id === assignmentId ? { ...a, status: 'submitted' } : a
     ));
-    // In a real app, this would make an API call
   };
 
   const handleAskAI = (item: CalendarItem) => {
@@ -153,58 +153,66 @@ export const TasksCalendar: React.FC<TasksCalendarProps> = ({ assignments, exams
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   return (
-    <div className="space-y-4 pb-4">
+    <motion.div
+      className="space-y-4 px-4 pb-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
       {/* Header Controls */}
-      <div className="bg-white dark:bg-[#171717] rounded-2xl border border-gray-200 dark:border-gray-800 p-4">
-        <div className="flex flex-wrap gap-3 items-center justify-between">
-          {/* View Mode Toggle */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setViewMode('list')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                viewMode === 'list'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+      <div className="pt-2 space-y-3">
+        {/* View Mode Toggle */}
+        <div className="bg-gray-100 dark:bg-gray-800/50 p-1 rounded-xl inline-flex">
+          <motion.button
+            onClick={() => setViewMode('list')}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${viewMode === 'list'
+                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
-            >
-              <List className="w-4 h-4 inline mr-2" />
-              List
-            </button>
-            <button
-              onClick={() => setViewMode('calendar')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                viewMode === 'calendar'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+            whileTap={{ scale: 0.95 }}
+          >
+            <List className="w-4 h-4" />
+            List
+          </motion.button>
+          <motion.button
+            onClick={() => setViewMode('calendar')}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${viewMode === 'calendar'
+                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
-            >
-              <CalendarDays className="w-4 h-4 inline mr-2" />
-              Calendar
-            </button>
-          </div>
+            whileTap={{ scale: 0.95 }}
+          >
+            <CalendarDays className="w-4 h-4" />
+            Calendar
+          </motion.button>
+        </div>
 
-          {/* Type Filter */}
-          <div className="flex gap-2 flex-wrap">
-            {(['all', 'assignment', 'lab', 'exam'] as ItemType[]).map(type => (
-              <button
-                key={type}
-                onClick={() => setTypeFilter(type)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors capitalize ${
-                  typeFilter === type
-                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-300 dark:border-blue-700'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+        {/* Type Filter Chips */}
+        <div className="flex gap-2 flex-wrap">
+          {(['all', 'assignment', 'lab', 'exam'] as ItemType[]).map(type => (
+            <motion.button
+              key={type}
+              onClick={() => setTypeFilter(type)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all capitalize ${typeFilter === type
+                  ? type === 'exam'
+                    ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/25'
+                    : type === 'lab'
+                      ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25'
+                      : type === 'assignment'
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25'
+                        : 'bg-gradient-to-r from-gray-600 to-gray-700 text-white shadow-lg'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
-              >
-                {type === 'all' ? 'All' : type}
-              </button>
-            ))}
-          </div>
+              whileTap={{ scale: 0.95 }}
+            >
+              {type === 'all' ? 'All' : type}
+            </motion.button>
+          ))}
         </div>
       </div>
 
       {viewMode === 'list' ? (
-        <ListView 
-          items={filteredItems} 
+        <ListView
+          items={filteredItems}
           getSubjectName={getSubjectName}
           getSubjectColor={getSubjectColor}
           onMarkComplete={handleMarkComplete}
@@ -227,16 +235,18 @@ export const TasksCalendar: React.FC<TasksCalendarProps> = ({ assignments, exams
       )}
 
       {/* Item Detail Modal */}
-      {selectedItem && (
-        <ItemDetailModal
-          item={selectedItem}
-          subjects={subjects}
-          onClose={() => setSelectedItem(null)}
-          onMarkComplete={handleMarkComplete}
-          onAskAI={handleAskAI}
-        />
-      )}
-    </div>
+      <AnimatePresence>
+        {selectedItem && (
+          <ItemDetailModal
+            item={selectedItem}
+            subjects={subjects}
+            onClose={() => setSelectedItem(null)}
+            onMarkComplete={handleMarkComplete}
+            onAskAI={handleAskAI}
+          />
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 
@@ -255,50 +265,56 @@ const ListView: React.FC<ListViewProps> = ({ items, getSubjectName, getSubjectCo
   const upcoming = items.filter(item => !item.isPast && new Date(item.date) >= now);
   const past = items.filter(item => item.isPast || new Date(item.date) < now);
 
-  const renderItem = (item: CalendarItem) => {
+  const urgencyStyles = {
+    critical: 'border-l-red-500 bg-gradient-to-r from-red-50 to-transparent dark:from-red-950/20',
+    high: 'border-l-amber-500 bg-gradient-to-r from-amber-50 to-transparent dark:from-amber-950/20',
+    medium: 'border-l-blue-500 bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-950/20',
+    low: 'border-l-gray-300 dark:border-l-gray-600'
+  };
+
+  const renderItem = (item: CalendarItem, index: number) => {
     const isAssignment = item.type === 'assignment' || item.type === 'lab';
-    const urgencyColors = {
-      critical: 'border-l-red-500 bg-red-50 dark:bg-red-950/20',
-      high: 'border-l-orange-500 bg-orange-50 dark:bg-orange-950/20',
-      medium: 'border-l-blue-500 bg-blue-50 dark:bg-blue-950/20',
-      low: 'border-l-gray-400 bg-gray-50 dark:bg-gray-950/20'
-    };
 
     return (
-      <div
+      <motion.div
         key={item.id}
-        className={`bg-white dark:bg-[#171717] border-l-4 ${urgencyColors[item.urgency || 'low']} border border-gray-200 dark:border-gray-800 rounded-xl p-4 cursor-pointer hover:shadow-md transition-shadow`}
+        className={`bg-white dark:bg-[#171717] border-l-4 ${urgencyStyles[item.urgency || 'low']} border border-gray-100 dark:border-gray-800 rounded-2xl p-4 cursor-pointer hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-black/20 transition-all`}
         onClick={() => onSelectItem(item)}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.05 }}
+        whileHover={{ x: 4 }}
       >
-        <div className="flex items-start justify-between mb-2">
+        <div className="flex items-start justify-between gap-3 mb-2">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <span
-                className="text-xs font-semibold px-2.5 py-1 rounded-lg"
-                style={{ backgroundColor: getSubjectColor(item.subjectId) + '20', color: getSubjectColor(item.subjectId) }}
+                className="text-xs font-bold px-2 py-1 rounded-lg"
+                style={{ backgroundColor: getSubjectColor(item.subjectId) + '15', color: getSubjectColor(item.subjectId) }}
               >
                 {getSubjectName(item.subjectId)}
               </span>
-              <span className={`text-xs px-2.5 py-1 rounded-lg font-medium uppercase ${
-                item.type === 'exam' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' :
-                item.type === 'lab' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
-                'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-              }`}>
+              <span className={`text-[10px] px-2 py-1 rounded-lg font-bold uppercase ${item.type === 'exam' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' :
+                  item.type === 'lab' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
+                    'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                }`}>
                 {item.type}
               </span>
               {isAssignment && item.status && <StatusBadge status={item.status} />}
             </div>
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
               {item.title}
             </h3>
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <CalendarIcon className="w-4 h-4" />
-              <span>{formatDateShort(item.date)}</span>
+            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+              <span className="flex items-center gap-1">
+                <CalendarIcon className="w-3.5 h-3.5" />
+                {formatDateShort(item.date)}
+              </span>
               {item.time && (
-                <>
-                  <Clock className="w-4 h-4 ml-2" />
-                  <span>{item.time}</span>
-                </>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  {item.time}
+                </span>
               )}
             </div>
           </div>
@@ -306,41 +322,47 @@ const ListView: React.FC<ListViewProps> = ({ items, getSubjectName, getSubjectCo
 
         {isAssignment && item.status !== 'submitted' && item.status !== 'graded' && (
           <div className="flex gap-2 mt-3">
-            <button 
+            <motion.button
               onClick={(e) => {
                 e.stopPropagation();
                 onMarkComplete(item.id);
               }}
-              className="flex-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center gap-1"
+              className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all text-xs font-semibold flex items-center justify-center gap-1.5 shadow-lg shadow-blue-500/20"
+              whileTap={{ scale: 0.95 }}
             >
-              <CheckCircle className="w-4 h-4" />
-              Mark Complete
-            </button>
-            <button 
+              <CheckCircle className="w-3.5 h-3.5" />
+              Complete
+            </motion.button>
+            <motion.button
               onClick={(e) => {
                 e.stopPropagation();
                 onAskAI(item);
               }}
-              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium"
+              className="px-3 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-purple-500/20"
+              whileTap={{ scale: 0.95 }}
             >
-              Ask AI
-            </button>
+              <Sparkles className="w-3.5 h-3.5" />
+              AI
+            </motion.button>
           </div>
         )}
-      </div>
+      </motion.div>
     );
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Upcoming */}
       {upcoming.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 px-1">
-            Upcoming ({upcoming.length})
-          </h3>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">
+              Upcoming ({upcoming.length})
+            </h3>
+          </div>
           <div className="space-y-3">
-            {upcoming.map(renderItem)}
+            {upcoming.map((item, index) => renderItem(item, index))}
           </div>
         </div>
       )}
@@ -348,20 +370,27 @@ const ListView: React.FC<ListViewProps> = ({ items, getSubjectName, getSubjectCo
       {/* Past */}
       {past.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-gray-500 dark:text-gray-400 mb-3 px-1">
+          <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 mb-3 uppercase tracking-wide">
             Past ({past.length})
           </h3>
-          <div className="space-y-3 opacity-60">
-            {past.map(renderItem)}
+          <div className="space-y-3 opacity-50">
+            {past.map((item, index) => renderItem(item, index))}
           </div>
         </div>
       )}
 
       {items.length === 0 && (
-        <div className="bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 rounded-xl p-12 text-center">
-          <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-500 dark:text-gray-400">No items found</p>
-        </div>
+        <motion.div
+          className="bg-white dark:bg-[#171717] border border-gray-100 dark:border-gray-800 rounded-2xl p-12 text-center"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CalendarIcon className="w-8 h-8 text-gray-400" />
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 font-medium">No items found</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Try adjusting your filters</p>
+        </motion.div>
       )}
     </div>
   );
@@ -398,140 +427,151 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Calendar Header */}
-      <div className="bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 rounded-2xl p-4">
+      {/* Calendar */}
+      <div className="bg-white dark:bg-[#171717] border border-gray-100 dark:border-gray-800 rounded-2xl p-4 overflow-hidden">
+        {/* Month Navigation */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
             {months[selectedDate.getMonth()]} {selectedDate.getFullYear()}
           </h2>
-          <div className="flex gap-2">
-            <button
+          <div className="flex gap-1">
+            <motion.button
               onClick={onPrevMonth}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              whileTap={{ scale: 0.9 }}
             >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
+              <ChevronLeft className="w-4 h-4" />
+            </motion.button>
+            <motion.button
               onClick={onNextMonth}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              whileTap={{ scale: 0.9 }}
             >
-              <ChevronRight className="w-5 h-5" />
-            </button>
+              <ChevronRight className="w-4 h-4" />
+            </motion.button>
           </div>
         </div>
 
         {/* Weekday headers */}
-        <div className="grid grid-cols-7 gap-2 mb-2">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="text-center text-xs font-semibold text-gray-600 dark:text-gray-400 py-2">
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+            <div key={i} className="text-center text-[10px] font-bold text-gray-400 dark:text-gray-500 py-2 uppercase">
               {day}
             </div>
           ))}
         </div>
 
         {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-2">
-          {/* Empty cells for days before month starts */}
+        <div className="grid grid-cols-7 gap-1">
+          {/* Empty cells */}
           {Array.from({ length: firstDayOfMonth }).map((_, i) => (
             <div key={`empty-${i}`} className="aspect-square" />
           ))}
-          
-          {/* Days of month */}
+
+          {/* Days */}
           {Array.from({ length: daysInMonth }).map((_, i) => {
             const day = i + 1;
             const items = getItemsForDate(day);
-            const isToday = new Date().getDate() === day && 
-                           new Date().getMonth() === selectedDate.getMonth() && 
-                           new Date().getFullYear() === selectedDate.getFullYear();
+            const isToday = new Date().getDate() === day &&
+              new Date().getMonth() === selectedDate.getMonth() &&
+              new Date().getFullYear() === selectedDate.getFullYear();
             const isSelected = selectedDay === day;
+            const hasItems = items.length > 0;
 
             return (
-              <button
+              <motion.button
                 key={day}
                 onClick={() => setSelectedDay(day === selectedDay ? null : day)}
-                className={`aspect-square p-1 rounded-lg border transition-colors ${
-                  isSelected 
-                    ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-500' 
+                className={`aspect-square p-1 rounded-xl relative transition-all ${isSelected
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
                     : isToday
-                    ? 'bg-blue-50 dark:bg-blue-950/20 border-blue-300 dark:border-blue-700'
-                    : 'border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                      : hasItems
+                        ? 'bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                  }`}
+                whileTap={{ scale: 0.9 }}
               >
-                <div className={`text-sm font-medium ${
-                  isToday ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'
-                }`}>
+                <div className={`text-xs font-semibold ${isSelected ? 'text-white' : ''}`}>
                   {day}
                 </div>
-                {items.length > 0 && (
-                  <div className="flex gap-0.5 mt-1 justify-center flex-wrap">
+                {hasItems && !isSelected && (
+                  <div className="flex gap-0.5 mt-0.5 justify-center">
                     {items.slice(0, 3).map((item, idx) => (
                       <div
                         key={idx}
-                        className="w-1.5 h-1.5 rounded-full"
+                        className="w-1 h-1 rounded-full"
                         style={{ backgroundColor: getSubjectColor(item.subjectId) }}
                       />
                     ))}
                   </div>
                 )}
-              </button>
+              </motion.button>
             );
           })}
         </div>
       </div>
 
       {/* Selected day items */}
-      {selectedDay && dayItems.length > 0 && (
-        <div className="bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 rounded-2xl p-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-            {months[selectedDate.getMonth()]} {selectedDay}, {selectedDate.getFullYear()}
-          </h3>
-          <div className="space-y-2">
-            {dayItems.map(item => (
-              <button
-                key={item.id}
-                onClick={() => onSelectItem(item)}
-                className="w-full text-left p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-xs px-2 py-0.5 rounded font-medium uppercase ${
-                    item.type === 'exam' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' :
-                    item.type === 'lab' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
-                    'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                  }`}>
-                    {item.type}
-                  </span>
-                  {item.time && (
-                    <span className="text-xs text-gray-500 dark:text-gray-400">{item.time}</span>
-                  )}
-                </div>
-                <div className="text-sm font-medium text-gray-900 dark:text-white">{item.title}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {selectedDay && dayItems.length > 0 && (
+          <motion.div
+            className="bg-white dark:bg-[#171717] border border-gray-100 dark:border-gray-800 rounded-2xl p-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">
+              {months[selectedDate.getMonth()]} {selectedDay}
+            </h3>
+            <div className="space-y-2">
+              {dayItems.map(item => (
+                <motion.button
+                  key={item.id}
+                  onClick={() => onSelectItem(item)}
+                  className="w-full text-left p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                  whileHover={{ x: 4 }}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${item.type === 'exam' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' :
+                        item.type === 'lab' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
+                          'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                      }`}>
+                      {item.type}
+                    </span>
+                    {item.time && (
+                      <span className="text-[10px] text-gray-400">{item.time}</span>
+                    )}
+                  </div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">{item.title}</div>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Summary */}
-      <div className="bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 rounded-2xl p-4">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">This Month</h3>
+      {/* Month Summary */}
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-100 dark:border-gray-800 rounded-2xl p-4">
+        <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide">This Month</h3>
         <div className="grid grid-cols-3 gap-3">
-          <div className="text-center">
+          <div className="text-center bg-white dark:bg-gray-800 rounded-xl p-3">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
               {monthItems.filter(i => i.type === 'assignment').length}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">Assignments</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase">Assignments</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+          <div className="text-center bg-white dark:bg-gray-800 rounded-xl p-3">
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
               {monthItems.filter(i => i.type === 'lab').length}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">Labs</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase">Labs</div>
           </div>
-          <div className="text-center">
+          <div className="text-center bg-white dark:bg-gray-800 rounded-xl p-3">
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
               {monthItems.filter(i => i.type === 'exam').length}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">Exams</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase">Exams</div>
           </div>
         </div>
       </div>
@@ -564,32 +604,46 @@ const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, subjects, onClo
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div 
-        className="bg-white dark:bg-[#171717] rounded-2xl border border-gray-200 dark:border-gray-800 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+    <motion.div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      onClick={onClose}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-white dark:bg-[#171717] rounded-t-3xl sm:rounded-2xl border-t sm:border border-gray-200 dark:border-gray-800 w-full sm:max-w-lg max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 100, opacity: 0 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
       >
-        <div className="p-6">
+        {/* Handle bar for mobile */}
+        <div className="flex justify-center pt-3 pb-2 sm:hidden">
+          <div className="w-10 h-1 bg-gray-300 dark:bg-gray-700 rounded-full" />
+        </div>
+
+        <div className="p-5">
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span
-                  className="text-xs font-semibold px-2.5 py-1 rounded-lg"
-                  style={{ backgroundColor: getSubjectColor(item.subjectId) + '20', color: getSubjectColor(item.subjectId) }}
+                  className="text-xs font-bold px-2.5 py-1 rounded-lg"
+                  style={{ backgroundColor: getSubjectColor(item.subjectId) + '15', color: getSubjectColor(item.subjectId) }}
                 >
                   {getSubjectName(item.subjectId)}
                 </span>
-                <span className={`text-xs px-2.5 py-1 rounded-lg font-medium uppercase ${
-                  item.type === 'exam' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' :
-                  item.type === 'lab' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
-                  'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                }`}>
+                <span className={`text-xs px-2.5 py-1 rounded-lg font-bold uppercase ${item.type === 'exam' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' :
+                    item.type === 'lab' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
+                      'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                  }`}>
                   {item.type}
                 </span>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{item.title}</h2>
-              <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{item.title}</h2>
+              <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
                 <span className="flex items-center gap-1">
                   <CalendarIcon className="w-4 h-4" />
                   {formatDateShort(item.date)}
@@ -602,36 +656,40 @@ const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, subjects, onClo
                 )}
               </div>
             </div>
-            <button
+            <motion.button
               onClick={onClose}
-              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              whileTap={{ scale: 0.9 }}
             >
-              ✕
-            </button>
+              <X className="w-5 h-5" />
+            </motion.button>
           </div>
 
           {/* Content */}
           {assignment && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{assignment.description}</p>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2">Description</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{assignment.description}</p>
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Requirements</h3>
-                <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2">Requirements</h3>
+                <ul className="space-y-1.5">
                   {assignment.requirements.map((req, i) => (
-                    <li key={i}>{req}</li>
+                    <li key={i} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+                      <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 flex-shrink-0" />
+                      {req}
+                    </li>
                   ))}
                 </ul>
               </div>
 
               {assignment.latePolicy && (
-                <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-900 rounded-lg p-3">
+                <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/30 rounded-xl p-3">
                   <div className="flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5" />
-                    <div className="text-sm text-yellow-800 dark:text-yellow-300">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-amber-800 dark:text-amber-300">
                       <span className="font-semibold">Late Policy:</span> {assignment.latePolicy}
                     </div>
                   </div>
@@ -640,25 +698,28 @@ const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, subjects, onClo
 
               {assignment.status !== 'submitted' && assignment.status !== 'graded' && (
                 <div className="flex gap-2 pt-2">
-                  <button 
+                  <motion.button
                     onClick={() => {
                       onMarkComplete(item.id);
                       onClose();
                     }}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+                    whileTap={{ scale: 0.95 }}
                   >
                     <CheckCircle className="w-4 h-4" />
                     Mark Complete
-                  </button>
-                  <button 
+                  </motion.button>
+                  <motion.button
                     onClick={() => {
                       onAskAI(item);
                       onClose();
                     }}
-                    className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium"
+                    className="px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all text-sm font-semibold flex items-center gap-2 shadow-lg shadow-purple-500/20"
+                    whileTap={{ scale: 0.95 }}
                   >
-                    Ask AI
-                  </button>
+                    <Sparkles className="w-4 h-4" />
+                    AI Help
+                  </motion.button>
                 </div>
               )}
             </div>
@@ -667,23 +728,23 @@ const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, subjects, onClo
           {exam && (
             <div className="space-y-4">
               <div className="flex items-center gap-4 text-sm">
-                <span className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  {exam.duration} minutes
+                <span className="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
+                  <Clock className="w-4 h-4 text-gray-500" />
+                  <span className="text-gray-700 dark:text-gray-300">{exam.duration} min</span>
                 </span>
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4" />
-                  {exam.location}
+                <span className="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
+                  <MapPin className="w-4 h-4 text-gray-500" />
+                  <span className="text-gray-700 dark:text-gray-300">{exam.location}</span>
                 </span>
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Syllabus</h3>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2">Syllabus</h3>
                 <div className="space-y-2">
                   {exam.syllabus.map((item, i) => (
-                    <div key={i} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                      <div className="font-medium text-sm text-gray-900 dark:text-white">{item.chapter}</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    <div key={i} className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3">
+                      <div className="font-semibold text-sm text-gray-900 dark:text-white">{item.chapter}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {item.topics.join(' • ')}
                       </div>
                     </div>
@@ -691,19 +752,21 @@ const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, subjects, onClo
                 </div>
               </div>
 
-              <button 
+              <motion.button
                 onClick={() => {
                   onAskAI(item);
                   onClose();
                 }}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                className="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20"
+                whileTap={{ scale: 0.95 }}
               >
+                <Sparkles className="w-4 h-4" />
                 Prepare with AI
-              </button>
+              </motion.button>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };

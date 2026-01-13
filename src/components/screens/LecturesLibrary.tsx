@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Play, MessageCircle, Flame, AlertCircle, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { Play, MessageCircle, Flame, AlertCircle, FileText, ChevronDown, ChevronUp, Clock, MapPin, Users } from 'lucide-react';
 import { StatusBadge } from '../shared/StatusBadge';
 import { formatDate, formatTime } from '../../utils/helpers';
 import type { Lecture, Subject } from '../../types';
 import { QuizGenerator } from './QuizGenerator';
 import { FlashcardsCreator } from './FlashcardsCreator';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface LecturesLibraryProps {
   lectures: Lecture[];
@@ -20,10 +21,10 @@ export const LecturesLibrary: React.FC<LecturesLibraryProps> = ({ lectures, subj
   // Filter lectures
   const filteredLectures = lectures.filter((lecture) => {
     if (selectedSubject !== 'all' && lecture.subjectId !== selectedSubject) return false;
-    
+
     const lectureDate = new Date(lecture.date);
     const today = new Date();
-    
+
     if (selectedFilter === 'today') {
       return lectureDate.toDateString() === today.toDateString();
     } else if (selectedFilter === 'week') {
@@ -33,7 +34,7 @@ export const LecturesLibrary: React.FC<LecturesLibraryProps> = ({ lectures, subj
       const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
       return lectureDate >= monthAgo;
     }
-    
+
     return true;
   });
 
@@ -63,7 +64,7 @@ export const LecturesLibrary: React.FC<LecturesLibraryProps> = ({ lectures, subj
 
   const getSubjectColor = (subjectId: string): string => {
     const subject = subjects.find(s => s.id === subjectId);
-    return subject?.color || '#2196F3';
+    return subject?.color || '#3b82f6';
   };
 
   const getSubjectName = (subjectId: string): string => {
@@ -76,149 +77,176 @@ export const LecturesLibrary: React.FC<LecturesLibraryProps> = ({ lectures, subj
   }
 
   return (
-    <div className="space-y-4 pb-4">
-      {/* Subject Filter Tabs */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
-          <button
+    <motion.div
+      className="space-y-4 px-4 pb-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Subject Filter Chips */}
+      <div className="pt-2">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4">
+          <motion.button
             onClick={() => setSelectedSubject('all')}
-            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-              selectedSubject === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-            }`}
+            className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${selectedSubject === 'all'
+                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            whileTap={{ scale: 0.95 }}
           >
             All
-          </button>
+          </motion.button>
           {subjects.map((subject) => (
-            <button
+            <motion.button
               key={subject.id}
               onClick={() => setSelectedSubject(subject.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                selectedSubject === subject.id
-                  ? 'text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
-              style={selectedSubject === subject.id ? { backgroundColor: subject.color } : {}}
+              className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${selectedSubject === subject.id
+                  ? 'text-white shadow-lg'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                }`}
+              style={selectedSubject === subject.id ? {
+                background: `linear-gradient(135deg, ${subject.color}, ${subject.color}dd)`,
+                boxShadow: `0 8px 20px -4px ${subject.color}40`
+              } : {}}
+              whileTap={{ scale: 0.95 }}
             >
               {subject.name}
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
 
-      {/* Filter and Sort */}
-      <div className="flex gap-3">
+      {/* Filter and Sort Row */}
+      <div className="flex gap-2">
         <select
           value={selectedFilter}
           onChange={(e) => setSelectedFilter(e.target.value)}
-          className="flex-1 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="flex-1 px-3 py-2.5 bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 rounded-xl text-sm text-gray-700 dark:text-gray-300 font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none cursor-pointer"
         >
           <option value="all">All Time</option>
           <option value="today">Today</option>
           <option value="week">This Week</option>
           <option value="month">This Month</option>
         </select>
-        
+
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="flex-1 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="flex-1 px-3 py-2.5 bg-white dark:bg-[#171717] border border-gray-200 dark:border-gray-800 rounded-xl text-sm text-gray-700 dark:text-gray-300 font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none cursor-pointer"
         >
-          <option value="latest">Latest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="subject">By Subject</option>
-          <option value="important">Important First</option>
+          <option value="latest">Latest</option>
+          <option value="oldest">Oldest</option>
+          <option value="subject">Subject</option>
+          <option value="important">Important</option>
         </select>
       </div>
 
       {/* Lectures List */}
       {Object.keys(groupedLectures).length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center">
-          <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-500 dark:text-gray-400">No lectures found</p>
-        </div>
+        <motion.div
+          className="bg-white dark:bg-[#171717] rounded-2xl border border-gray-100 dark:border-gray-800 p-12 text-center"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText className="w-8 h-8 text-gray-400" />
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 font-medium">No lectures found</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Try adjusting your filters</p>
+        </motion.div>
       ) : (
-        <div className="space-y-4">
-          {Object.entries(groupedLectures).map(([date, dateLectures]) => (
-            <div key={date}>
-              {/* Date Separator */}
-              <div className="sticky top-0 bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-lg mb-3 z-10">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">{date}</h3>
+        <div className="space-y-5">
+          {Object.entries(groupedLectures).map(([date, dateLectures], groupIndex) => (
+            <motion.div
+              key={date}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: groupIndex * 0.1 }}
+            >
+              {/* Date Header */}
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px flex-1 bg-gradient-to-r from-gray-200 dark:from-gray-800 to-transparent" />
+                <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{date}</span>
+                <div className="h-px flex-1 bg-gradient-to-l from-gray-200 dark:from-gray-800 to-transparent" />
               </div>
 
               {/* Lecture Cards */}
-              <div className="space-y-4">
-                {dateLectures.map((lecture) => (
-                  <div
+              <div className="space-y-3">
+                {dateLectures.map((lecture, index) => (
+                  <motion.div
                     key={lecture.id}
-                    className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                    className="group bg-white dark:bg-[#171717] rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:shadow-xl hover:shadow-gray-200/50 dark:hover:shadow-black/20 transition-all duration-300 cursor-pointer"
                     onClick={() => setSelectedLecture(lecture)}
-                    style={{ borderLeft: `4px solid ${getSubjectColor(lecture.subjectId)}` }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ y: -2 }}
                   >
-                    <div className="p-5">
-                      {/* Header */}
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span
-                              className="text-xs font-semibold px-2 py-1 rounded"
-                              style={{ backgroundColor: getSubjectColor(lecture.subjectId) + '20', color: getSubjectColor(lecture.subjectId) }}
-                            >
-                              {getSubjectName(lecture.subjectId)}
-                            </span>
-                            {lecture.isNew && <StatusBadge status="new" />}
-                            {lecture.isImportant && <StatusBadge status="important" />}
-                            {lecture.isExamRelevant && (
-                              <div className="flex items-center gap-1">
-                                <Flame className="w-4 h-4 text-red-500" />
-                                <span className="text-xs text-red-500 font-medium">Exam Topic</span>
-                              </div>
-                            )}
-                          </div>
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                            {lecture.title}
-                          </h3>
+                    {/* Subject Color Bar */}
+                    <div
+                      className="h-1 w-full"
+                      style={{ background: `linear-gradient(90deg, ${getSubjectColor(lecture.subjectId)}, ${getSubjectColor(lecture.subjectId)}80)` }}
+                    />
+
+                    <div className="p-4">
+                      {/* Header with badges */}
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span
+                            className="text-xs font-bold px-2.5 py-1 rounded-lg"
+                            style={{
+                              backgroundColor: getSubjectColor(lecture.subjectId) + '15',
+                              color: getSubjectColor(lecture.subjectId)
+                            }}
+                          >
+                            {getSubjectName(lecture.subjectId)}
+                          </span>
+                          {lecture.isNew && <StatusBadge status="new" />}
+                          {lecture.isImportant && <StatusBadge status="important" />}
                         </div>
+                        {lecture.isExamRelevant && (
+                          <div className="flex items-center gap-1 bg-red-50 dark:bg-red-950/30 px-2 py-1 rounded-lg">
+                            <Flame className="w-3.5 h-3.5 text-red-500" />
+                            <span className="text-[10px] text-red-600 dark:text-red-400 font-bold uppercase">Exam</span>
+                          </div>
+                        )}
                       </div>
 
+                      {/* Title */}
+                      <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+                        {lecture.title}
+                      </h3>
+
                       {/* Meta Info */}
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        <span>{formatTime(lecture.startTime)} - {formatTime(lecture.endTime)}</span>
-                        <span>{lecture.room}</span>
-                        <span>{lecture.professor}</span>
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mb-3">
                         <span className="flex items-center gap-1">
-                          <div className="w-2 h-2 bg-green-500 rounded-full" />
-                          {lecture.recordingDevices} devices
+                          <Clock className="w-3.5 h-3.5" />
+                          {formatTime(lecture.startTime)} - {formatTime(lecture.endTime)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5" />
+                          {lecture.room}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                          {lecture.recordingDevices} recording
                         </span>
                       </div>
 
-                      {/* Summary */}
+                      {/* Quick Summary */}
                       {lecture.summary && (
-                        <div className="mb-4">
-                          <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
-                            {lecture.summary.quick}
-                          </p>
-                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
+                          {lecture.summary.quick}
+                        </p>
                       )}
 
-                      {/* Important Info */}
+                      {/* Important Info Alert */}
                       {lecture.importantInfo && (
-                        <div className="bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-900 rounded-lg p-3 mb-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <AlertCircle className="w-4 h-4 text-orange-600" />
-                            <span className="text-sm font-semibold text-orange-900 dark:text-orange-300">Important Updates</span>
+                        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 rounded-xl p-3 mb-3">
+                          <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
+                            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                            <span className="text-xs font-semibold">Important updates available</span>
                           </div>
-                          {lecture.importantInfo.assignments && lecture.importantInfo.assignments.length > 0 && (
-                            <div className="text-sm text-orange-800 dark:text-orange-400">
-                              Assignment: {lecture.importantInfo.assignments[0].title}
-                            </div>
-                          )}
-                          {lecture.importantInfo.exams && lecture.importantInfo.exams.length > 0 && (
-                            <div className="text-sm text-orange-800 dark:text-orange-400">
-                              Exam: {lecture.importantInfo.exams[0].type} on {lecture.importantInfo.exams[0].date}
-                            </div>
-                          )}
                         </div>
                       )}
 
@@ -229,32 +257,32 @@ export const LecturesLibrary: React.FC<LecturesLibraryProps> = ({ lectures, subj
                             e.stopPropagation();
                             setSelectedLecture(lecture);
                           }}
-                          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                          className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all text-sm font-semibold shadow-lg shadow-blue-500/20"
                         >
                           View Notes
                         </button>
                         <button
                           onClick={(e) => e.stopPropagation()}
-                          className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+                          className="p-2.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                         >
                           <Play className="w-4 h-4" />
                         </button>
                         <button
                           onClick={(e) => e.stopPropagation()}
-                          className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+                          className="p-2.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                         >
                           <MessageCircle className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
@@ -271,7 +299,7 @@ const LectureDetail: React.FC<LectureDetailProps> = ({ lecture, subjects, onBack
 
   const getSubjectColor = (subjectId: string): string => {
     const subject = subjects.find(s => s.id === subjectId);
-    return subject?.color || '#2196F3';
+    return subject?.color || '#3b82f6';
   };
 
   const getSubjectName = (subjectId: string): string => {
@@ -298,215 +326,236 @@ const LectureDetail: React.FC<LectureDetailProps> = ({ lecture, subjects, onBack
   }
 
   return (
-    <div className="pb-4">
-      <button
+    <motion.div
+      className="px-4 pb-4"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Back Button */}
+      <motion.button
         onClick={onBack}
-        className="mb-4 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
+        className="mb-4 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium inline-flex items-center gap-2"
+        whileTap={{ scale: 0.95 }}
       >
-        ← Back to Lectures
-      </button>
+        <ChevronDown className="w-4 h-4 rotate-90" />
+        Back to Lectures
+      </motion.button>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 space-y-6">
-        {/* Header */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span
-              className="text-sm font-semibold px-3 py-1 rounded"
-              style={{ backgroundColor: getSubjectColor(lecture.subjectId) + '20', color: getSubjectColor(lecture.subjectId) }}
+      <div className="bg-white dark:bg-[#171717] rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+        {/* Header with subject color */}
+        <div
+          className="h-2 w-full"
+          style={{ background: `linear-gradient(90deg, ${getSubjectColor(lecture.subjectId)}, ${getSubjectColor(lecture.subjectId)}60)` }}
+        />
+
+        <div className="p-5 space-y-5">
+          {/* Header */}
+          <div>
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
+              <span
+                className="text-sm font-bold px-3 py-1.5 rounded-lg"
+                style={{ backgroundColor: getSubjectColor(lecture.subjectId) + '15', color: getSubjectColor(lecture.subjectId) }}
+              >
+                {getSubjectName(lecture.subjectId)}
+              </span>
+              {lecture.isExamRelevant && (
+                <div className="flex items-center gap-1 bg-red-50 dark:bg-red-950/30 px-2.5 py-1.5 rounded-lg">
+                  <Flame className="w-4 h-4 text-red-500" />
+                  <span className="text-xs text-red-600 dark:text-red-400 font-bold">Exam Relevant</span>
+                </div>
+              )}
+            </div>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{lecture.title}</h1>
+            <div className="flex flex-wrap gap-3 text-sm text-gray-500 dark:text-gray-400">
+              <span className="flex items-center gap-1">
+                <Clock className="w-4 h-4" />
+                {formatDate(lecture.date)}
+              </span>
+              <span>{formatTime(lecture.startTime)} - {formatTime(lecture.endTime)}</span>
+              <span className="flex items-center gap-1">
+                <MapPin className="w-4 h-4" />
+                {lecture.room}
+              </span>
+            </div>
+          </div>
+
+          {/* Quick Summary */}
+          {lecture.summary && (
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl p-4 border border-blue-100 dark:border-blue-900/30">
+              <h2 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                <span className="text-lg">📝</span>
+                Quick Summary
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                {lecture.summary.quick}
+              </p>
+            </div>
+          )}
+
+          {/* Important Information */}
+          {lecture.importantInfo && (
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-xl p-4 border-l-4 border-l-amber-500 border border-amber-100 dark:border-amber-900/30">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertCircle className="w-5 h-5 text-amber-600" />
+                <h2 className="font-bold text-amber-900 dark:text-amber-300">Important Information</h2>
+              </div>
+
+              {lecture.importantInfo.assignments && lecture.importantInfo.assignments.length > 0 && (
+                <div className="mb-3">
+                  <h3 className="font-semibold text-amber-900 dark:text-amber-300 mb-2 text-sm">📝 Assignments Mentioned</h3>
+                  {lecture.importantInfo.assignments.map((assignment, i) => (
+                    <div key={i} className="bg-white/60 dark:bg-gray-800/60 rounded-lg p-3 mb-2">
+                      <div className="font-medium text-gray-900 dark:text-white text-sm">{assignment.title}</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Due: {assignment.dueDate}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {lecture.importantInfo.exams && lecture.importantInfo.exams.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-amber-900 dark:text-amber-300 mb-2 text-sm">📚 Exam Topics</h3>
+                  {lecture.importantInfo.exams.map((exam, i) => (
+                    <div key={i} className="bg-white/60 dark:bg-gray-800/60 rounded-lg p-3">
+                      <div className="font-medium text-gray-900 dark:text-white text-sm">{exam.type} Exam</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Topics: {exam.topics.join(', ')}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Detailed Notes by Section */}
+          {lecture.sections && lecture.sections.length > 0 && (
+            <div>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Detailed Notes</h2>
+              <div className="space-y-3">
+                {lecture.sections.map((section, index) => (
+                  <div key={index} className="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+                    <motion.button
+                      onClick={() => toggleSection(index)}
+                      className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-left"
+                    >
+                      <div>
+                        <span className="font-semibold text-gray-900 dark:text-white text-sm">{section.title}</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 px-2 py-0.5 rounded font-mono">{section.timestamp}</span>
+                          <span className="text-xs text-gray-400">• {section.duration} min</span>
+                        </div>
+                      </div>
+                      <motion.div
+                        animate={{ rotate: expandedSections.has(index) ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                      </motion.div>
+                    </motion.button>
+
+                    <AnimatePresence>
+                      {expandedSections.has(index) && (
+                        <motion.div
+                          className="p-4 space-y-4 bg-white dark:bg-[#171717]"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                            {section.content}
+                          </p>
+                          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border-l-4 border-blue-500">
+                            <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-sm flex items-center gap-2">
+                              <span className="text-blue-500">✦</span>
+                              Key Points
+                            </h4>
+                            <ul className="space-y-2">
+                              {section.keyPoints.map((point, i) => (
+                                <li key={i} className="flex items-start gap-2 text-gray-700 dark:text-gray-300 text-sm">
+                                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 flex-shrink-0" />
+                                  {point}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
+                            <Play className="w-4 h-4" />
+                            Play from {section.timestamp}
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Code Snippets */}
+          {lecture.codeSnippets && lecture.codeSnippets.length > 0 && (
+            <div>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Code Snippets</h2>
+              {lecture.codeSnippets.map((snippet, index) => (
+                <div key={index} className="mb-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{snippet.description}</span>
+                    <button className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium">
+                      Copy
+                    </button>
+                  </div>
+                  <pre className="bg-gray-900 text-gray-100 p-4 rounded-xl overflow-x-auto text-sm font-mono">
+                    <code>{snippet.code}</code>
+                  </pre>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Q&A Section */}
+          {lecture.qna && lecture.qna.length > 0 && (
+            <div>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Questions & Answers</h2>
+              <div className="space-y-3">
+                {lecture.qna.map((qa, index) => (
+                  <div key={index} className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
+                    <div className="mb-2">
+                      <span className="text-sm font-bold text-blue-600 dark:text-blue-400">Q:</span>
+                      <span className="text-sm text-gray-900 dark:text-white ml-2">{qa.question}</span>
+                      {qa.student && (
+                        <span className="text-xs text-gray-400 ml-2">— {qa.student}</span>
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">A:</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300 ml-2">{qa.answer}</span>
+                    </div>
+                    <button className="text-xs text-gray-400 hover:text-blue-500 mt-2">
+                      Jump to {qa.timestamp}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Action Toolbar */}
+          <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100 dark:border-gray-800">
+            <button
+              onClick={() => setCurrentView('quiz')}
+              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all text-sm font-semibold shadow-lg shadow-blue-500/20"
             >
-              {getSubjectName(lecture.subjectId)}
-            </span>
-            {lecture.isExamRelevant && (
-              <div className="flex items-center gap-1 bg-red-50 dark:bg-red-950/30 px-2 py-1 rounded">
-                <Flame className="w-4 h-4 text-red-500" />
-                <span className="text-xs text-red-600 dark:text-red-400 font-medium">Exam Relevant</span>
-              </div>
-            )}
+              Generate Quiz
+            </button>
+            <button
+              onClick={() => setCurrentView('flashcards')}
+              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all text-sm font-semibold shadow-lg shadow-purple-500/20"
+            >
+              Create Flashcards
+            </button>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">{lecture.title}</h1>
-          <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
-            <span>{formatDate(lecture.date)}</span>
-            <span>{formatTime(lecture.startTime)} - {formatTime(lecture.endTime)}</span>
-            <span>{lecture.room}</span>
-            <span>{lecture.professor}</span>
-          </div>
-        </div>
-
-        {/* Quick Summary */}
-        {lecture.summary && (
-          <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4">
-            <h2 className="font-semibold text-gray-900 dark:text-white mb-2">Quick Summary (2-min read)</h2>
-            <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-              {lecture.summary.quick}
-            </p>
-          </div>
-        )}
-
-        {/* Important Information */}
-        {lecture.importantInfo && (
-          <div className="bg-orange-50 dark:bg-orange-950/30 border-l-4 border-l-orange-500 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <AlertCircle className="w-5 h-5 text-orange-600" />
-              <h2 className="font-semibold text-orange-900 dark:text-orange-300">Important Information</h2>
-            </div>
-            
-            {lecture.importantInfo.assignments && lecture.importantInfo.assignments.length > 0 && (
-              <div className="mb-3">
-                <h3 className="font-medium text-orange-900 dark:text-orange-300 mb-2">📝 Assignments Mentioned</h3>
-                {lecture.importantInfo.assignments.map((assignment, i) => (
-                  <div key={i} className="bg-white dark:bg-gray-800 rounded p-3 mb-2">
-                    <div className="font-medium text-gray-900 dark:text-white">{assignment.title}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Due: {assignment.dueDate}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Timestamp: {assignment.timestamp}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            {lecture.importantInfo.exams && lecture.importantInfo.exams.length > 0 && (
-              <div>
-                <h3 className="font-medium text-orange-900 dark:text-orange-300 mb-2">📚 Exam Topics</h3>
-                {lecture.importantInfo.exams.map((exam, i) => (
-                  <div key={i} className="bg-white dark:bg-gray-800 rounded p-3">
-                    <div className="font-medium text-gray-900 dark:text-white">{exam.type} Exam</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Topics: {exam.topics.join(', ')}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Detailed Notes by Section */}
-        {lecture.sections && lecture.sections.length > 0 && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Detailed Notes</h2>
-            <div className="space-y-4">
-              {lecture.sections.map((section, index) => (
-                <div key={index} className="border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                  <button
-                    onClick={() => toggleSection(index)}
-                    className="w-full flex items-center justify-between p-5 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-700/30 hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-700 dark:hover:to-gray-700/50 transition-all"
-                  >
-                    <div className="flex flex-col items-start gap-2">
-                      <span className="font-semibold text-base text-gray-900 dark:text-white">{section.title}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 px-2 py-1 rounded font-mono">{section.timestamp}</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-500">• {section.duration} min</span>
-                      </div>
-                    </div>
-                    {expandedSections.has(index) ? (
-                      <ChevronUp className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-                    ) : (
-                      <ChevronDown className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-                    )}
-                  </button>
-                  
-                  {expandedSections.has(index) && (
-                    <div className="p-5 space-y-4 bg-white dark:bg-gray-800">
-                      <div className="prose dark:prose-invert max-w-none">
-                        <p className="text-gray-800 dark:text-gray-200 text-base leading-loose">
-                          {section.content}
-                        </p>
-                      </div>
-                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-500">
-                        <h4 className="font-semibold text-gray-900 dark:text-white mb-3 text-base flex items-center gap-2">
-                          <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                            <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/>
-                          </svg>
-                          Key Points:
-                        </h4>
-                        <ul className="space-y-2.5 text-base">
-                          {section.keyPoints.map((point, i) => (
-                            <li key={i} className="flex items-start gap-3 text-gray-700 dark:text-gray-300">
-                              <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
-                              <span className="flex-1">{point}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <button className="text-base text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 px-4 py-2.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
-                        <Play className="w-5 h-5" />
-                        Play from {section.timestamp}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Code Snippets */}
-        {lecture.codeSnippets && lecture.codeSnippets.length > 0 && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Code Snippets</h2>
-            {lecture.codeSnippets.map((snippet, index) => (
-              <div key={index} className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{snippet.description}</span>
-                  <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
-                    Copy
-                  </button>
-                </div>
-                <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
-                  <code>{snippet.code}</code>
-                </pre>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Q&A Section */}
-        {lecture.qna && lecture.qna.length > 0 && (
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Questions & Answers</h2>
-            <div className="space-y-4">
-              {lecture.qna.map((qa, index) => (
-                <div key={index} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                  <div className="mb-2">
-                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">Q:</span>
-                    <span className="text-sm text-gray-900 dark:text-white ml-2">{qa.question}</span>
-                    {qa.student && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">- {qa.student}</span>
-                    )}
-                  </div>
-                  <div>
-                    <span className="text-sm font-semibold text-green-600 dark:text-green-400">A:</span>
-                    <span className="text-sm text-gray-700 dark:text-gray-300 ml-2">{qa.answer}</span>
-                  </div>
-                  <button className="text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 mt-2">
-                    Jump to {qa.timestamp}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Action Toolbar */}
-        <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <button 
-            onClick={() => setCurrentView('quiz')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-          >
-            Generate Quiz
-          </button>
-          <button 
-            onClick={() => setCurrentView('flashcards')}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
-          >
-            Create Flashcards
-          </button>
-          <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium">
-            Share Notes
-          </button>
-          <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium">
-            Mark as Reviewed
-          </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

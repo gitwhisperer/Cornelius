@@ -84,8 +84,8 @@ function AppContent() {
       default:
         return (
           <HomeDashboard
-            lectures={mockLectures}
-            assignments={mockAssignments}
+            lectures={allLectures}
+            assignments={allAssignments}
             onNavigate={setCurrentScreen}
           />
         );
@@ -93,16 +93,19 @@ function AppContent() {
   };
 
   return (
-    <div className="relative flex flex-col h-full bg-white dark:bg-[#0a0a0a] transition-colors overflow-hidden">
+    <div className="h-full w-full bg-white dark:bg-[#0a0a0a] transition-colors flex flex-col overflow-hidden">
+      {/* Top Bar - flex-shrink-0 to not shrink */}
       <TopBar
         title={getScreenTitle()}
         onNavigate={setCurrentScreen}
       />
 
-      <main className="flex-1 overflow-y-auto pt-16 pb-20">
+      {/* Scrollable Main Content - flex-1 to take remaining space */}
+      <main className="flex-1 overflow-y-auto overscroll-contain">
         {renderScreen()}
       </main>
 
+      {/* Bottom Navigation - flex-shrink-0 to not shrink */}
       <BottomNavigation
         currentScreen={currentScreen}
         onNavigate={setCurrentScreen}
