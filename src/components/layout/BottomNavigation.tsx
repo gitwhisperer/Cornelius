@@ -16,7 +16,7 @@ const navItems = [
 
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentScreen, onNavigate }) => {
   return (
-    <nav className="w-full bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 z-50">
+    <nav className="fixed bottom-0 left-0 right-0 w-full bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 z-50">
       <div className="max-w-[440px] mx-auto px-4">
         <div className="flex justify-around items-center h-16">
           {navItems.map((item) => {
