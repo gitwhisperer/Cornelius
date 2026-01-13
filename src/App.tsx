@@ -10,8 +10,8 @@ import { Profile } from "./components/screens/Profile";
 import { Notifications } from "./components/screens/Notifications";
 import { AppShell } from "./components/layout/AppShell";
 import {
-  mockLectures,
-  mockAssignments,
+  allLectures,
+  allAssignments,
   mockExams,
   mockSubjects,
   mockUser,
@@ -46,22 +46,22 @@ function AppContent() {
       case "home":
         return (
           <HomeDashboard
-            lectures={mockLectures}
-            assignments={mockAssignments}
+            lectures={allLectures}
+            assignments={allAssignments}
             onNavigate={setCurrentScreen}
           />
         );
       case "lectures":
         return (
           <LecturesLibrary
-            lectures={mockLectures}
+            lectures={allLectures}
             subjects={mockSubjects}
           />
         );
       case "tasks":
         return (
           <TasksCalendar
-            assignments={mockAssignments}
+            assignments={allAssignments}
             exams={mockExams}
             subjects={mockSubjects}
             onNavigate={setCurrentScreen}
@@ -71,8 +71,8 @@ function AppContent() {
         return (
           <AIChat
             onNavigate={setCurrentScreen}
-            lectures={mockLectures}
-            assignments={mockAssignments}
+            lectures={allLectures}
+            assignments={allAssignments}
             exams={mockExams}
             user={mockUser}
           />
@@ -99,7 +99,7 @@ function AppContent() {
         onNavigate={setCurrentScreen}
       />
 
-      <main className="flex-1 overflow-y-auto pt-16 pb-4">
+      <main className="flex-1 overflow-y-auto pt-16 pb-20">
         {renderScreen()}
       </main>
 

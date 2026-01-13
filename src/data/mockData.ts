@@ -1,86 +1,159 @@
 // Mock Data for Smart Lecture Notes Application
 
 import type { User, Batch, Subject, Lecture, Assignment, Exam, ChatMessage, TimetableEntry } from '../types';
+import { generateLecturesFromTimetable, generateAssignmentsFromTimetable, mergeScheduleData } from '../utils/schedule';
 
 export const mockSubjects: Subject[] = [
   { id: 'sub-dsa', name: 'Data Structures & Algorithms', code: 'CS301', color: '#2196F3', teacher: 'Dr. Sarah Johnson' },
   { id: 'sub-ml', name: 'Machine Learning', code: 'CS405', color: '#4CAF50', teacher: 'Prof. David Chen' },
   { id: 'sub-dbms', name: 'Database Systems', code: 'CS302', color: '#9C27B0', teacher: 'Dr. Emily Rodriguez' },
-  { id: 'sub-os', name: 'Operating Systems', code: 'CS301', color: '#FF9800', teacher: 'Dr. Robert Lee' },
+  { id: 'sub-os', name: 'Operating Systems', code: 'CS303', color: '#FF9800', teacher: 'Dr. Robert Lee' },
   { id: 'sub-networks', name: 'Computer Networks', code: 'CS401', color: '#009688', teacher: 'Dr. Lisa Wang' },
 ];
 
+// Weekly Timetable - Complete schedule for all 5 days
 export const mockTimetable: TimetableEntry[] = [
+  // Monday
   {
-    id: '1',
+    id: 'tt-mon-1',
     subjectId: 'sub-dsa',
     day: 'Monday',
     startTime: '09:00',
     endTime: '10:30',
     room: 'LH-201',
-    professor: 'Dr. Sarah Chen'
+    professor: 'Dr. Sarah Johnson'
   },
   {
-    id: '2',
+    id: 'tt-mon-2',
     subjectId: 'sub-ml',
     day: 'Monday',
     startTime: '11:00',
     endTime: '12:30',
-    room: 'Lab 301',
-    professor: 'Dr. James Wilson'
+    room: 'LAB-301',
+    professor: 'Prof. David Chen'
   },
   {
-    id: '3',
+    id: 'tt-mon-3',
+    subjectId: 'sub-networks',
+    day: 'Monday',
+    startTime: '14:00',
+    endTime: '15:30',
+    room: 'LH-105',
+    professor: 'Dr. Lisa Wang'
+  },
+  // Tuesday
+  {
+    id: 'tt-tue-1',
     subjectId: 'sub-dbms',
     day: 'Tuesday',
-    startTime: '10:00',
-    endTime: '11:30',
-    room: 'Lab 3',
-    professor: 'Dr. Chen'
-  },
-  {
-    id: '4',
-    subjectId: 'sub-os',
-    day: 'Wednesday',
     startTime: '09:00',
     endTime: '10:30',
-    room: 'LH-102',
+    room: 'LAB-203',
+    professor: 'Dr. Emily Rodriguez'
+  },
+  {
+    id: 'tt-tue-2',
+    subjectId: 'sub-os',
+    day: 'Tuesday',
+    startTime: '11:00',
+    endTime: '12:30',
+    room: 'LH-301',
     professor: 'Dr. Robert Lee'
   },
   {
-    id: '5',
+    id: 'tt-tue-3',
+    subjectId: 'sub-dsa',
+    day: 'Tuesday',
+    startTime: '14:30',
+    endTime: '16:00',
+    room: 'LAB-401',
+    professor: 'Dr. Sarah Johnson'
+  },
+  // Wednesday
+  {
+    id: 'tt-wed-1',
+    subjectId: 'sub-ml',
+    day: 'Wednesday',
+    startTime: '09:30',
+    endTime: '11:00',
+    room: 'LAB-302',
+    professor: 'Prof. David Chen'
+  },
+  {
+    id: 'tt-wed-2',
     subjectId: 'sub-networks',
-    day: 'Thursday',
-    startTime: '14:00',
-    endTime: '15:30',
-    room: 'Room 204',
+    day: 'Wednesday',
+    startTime: '11:30',
+    endTime: '13:00',
+    room: 'LH-205',
     professor: 'Dr. Lisa Wang'
   },
   {
-    id: '6',
+    id: 'tt-wed-3',
+    subjectId: 'sub-dbms',
+    day: 'Wednesday',
+    startTime: '14:00',
+    endTime: '15:30',
+    room: 'LH-101',
+    professor: 'Dr. Emily Rodriguez'
+  },
+  // Thursday
+  {
+    id: 'tt-thu-1',
+    subjectId: 'sub-os',
+    day: 'Thursday',
+    startTime: '09:00',
+    endTime: '10:30',
+    room: 'LAB-501',
+    professor: 'Dr. Robert Lee'
+  },
+  {
+    id: 'tt-thu-2',
     subjectId: 'sub-dsa',
-    day: 'Friday',
+    day: 'Thursday',
     startTime: '11:00',
     endTime: '12:30',
     room: 'LH-201',
-    professor: 'Dr. Sarah Chen'
+    professor: 'Dr. Sarah Johnson'
+  },
+  {
+    id: 'tt-thu-3',
+    subjectId: 'sub-ml',
+    day: 'Thursday',
+    startTime: '14:30',
+    endTime: '16:00',
+    room: 'LH-103',
+    professor: 'Prof. David Chen'
+  },
+  // Friday
+  {
+    id: 'tt-fri-1',
+    subjectId: 'sub-networks',
+    day: 'Friday',
+    startTime: '09:00',
+    endTime: '10:30',
+    room: 'LAB-304',
+    professor: 'Dr. Lisa Wang'
+  },
+  {
+    id: 'tt-fri-2',
+    subjectId: 'sub-dbms',
+    day: 'Friday',
+    startTime: '11:00',
+    endTime: '12:30',
+    room: 'LAB-203',
+    professor: 'Dr. Emily Rodriguez'
+  },
+  {
+    id: 'tt-fri-3',
+    subjectId: 'sub-os',
+    day: 'Friday',
+    startTime: '14:00',
+    endTime: '15:30',
+    room: 'LH-301',
+    professor: 'Dr. Robert Lee'
   }
 ];
-
-// Auto-generate upcoming lectures and assignments from timetable
-import { generateFromTimetable } from '../utils/schedule';
-const auto = generateFromTimetable(mockTimetable, mockSubjects, { weeksAhead: 8 });
-
-// Merge auto generated lectures and assignments if not already present
-const existingLectureIds = new Set(mockLectures.map((l) => l.id));
-for (const l of auto.lectures) {
-  if (!existingLectureIds.has(l.id)) mockLectures.push(l);
-}
-
-const existingAssignmentIds = new Set(mockAssignments.map((a) => a.id));
-for (const a of auto.assignments) {
-  if (!existingAssignmentIds.has(a.id)) mockAssignments.push(a);
-}
 
 // Mock Lectures
 export const mockLectures: Lecture[] = [
@@ -738,3 +811,11 @@ export const mockUser: User = {
     examPerformance: 85
   }
 };
+
+// Auto-generate lectures and assignments from timetable
+const autoGeneratedLectures = generateLecturesFromTimetable(mockTimetable, 4); // 4 weeks ahead
+const autoGeneratedAssignments = generateAssignmentsFromTimetable(mockTimetable, autoGeneratedLectures, 4);
+
+// Merge with existing mock data
+export const allLectures = mergeScheduleData(mockLectures, autoGeneratedLectures);
+export const allAssignments = mergeScheduleData(mockAssignments, autoGeneratedAssignments);
