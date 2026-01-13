@@ -99,7 +99,7 @@ function AppContent() {
         onNavigate={setCurrentScreen}
       />
 
-      <main className="flex-1 overflow-y-auto pt-16 pb-20">
+      <main className="flex-1 overflow-y-auto pt-16 pb-4">
         {renderScreen()}
       </main>
 
