@@ -4,15 +4,15 @@
 
 Cornelius is a modern React-based mobile application that helps students manage their lectures, tasks, and study materials with AI-powered features.
 
-## 🚀 Features
+## Features
 
-- **📚 Lecture Library** - Browse, filter, and view AI-generated lecture notes
-- **📅 Task Calendar** - Manage assignments, labs, and exams with urgency tracking
-- **🤖 AI Assistant** - Get study tips, generate quizzes, and create flashcards
-- **🏠 Smart Dashboard** - View today's schedule, alerts, and AI suggestions
-- **🌙 Dark Mode** - Beautiful dark/light theme support
+- **Lecture Library** - Browse, filter, and view AI-generated lecture notes
+- **Task Calendar** - Manage assignments, labs, and exams with urgency tracking
+- **AI Assistant** - Get study tips, generate quizzes, and create flashcards
+- **Smart Dashboard** - View today's schedule, alerts, and AI suggestions
+- **Dark Mode** - Beautiful dark/light theme support
 
-## 📱 Screenshots & Wireframes
+## Screenshots & Wireframes
 
 ### Wireframes
 ![App Wireframes](./diagrams/3_wireframe.png)
@@ -20,7 +20,7 @@ Cornelius is a modern React-based mobile application that helps students manage 
 ### UI Flow
 ![UI Flow & Navigation](./diagrams/4_mockup.png)
 
-## 🏗️ System Architecture
+## System Architecture
 
 ![System Architecture](./diagrams/5_architecture.png)
 
@@ -31,7 +31,7 @@ Cornelius is a modern React-based mobile application that helps students manage 
 - **Build Tool:** Vite
 - **Backend:** Supabase (Database + Auth)
 
-## 📊 Design Documentation
+## Design Documentation
 
 ### Process Flow Diagram
 ![Process Flow](./diagrams/1_process_flow.png)
@@ -39,7 +39,7 @@ Cornelius is a modern React-based mobile application that helps students manage 
 ### Use Case Diagram
 ![Use Case Diagram](./diagrams/2_use_case.png)
 
-## 🛠️ Running the Code
+## Running the Code
 
 ### Prerequisites
 - Node.js 18+
@@ -61,7 +61,7 @@ npm run dev
 npm run build
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
@@ -77,13 +77,13 @@ src/
 └── utils/              # Helper functions
 ```
 
-## 📄 Documentation
+## Documentation
 
 Full design documentation including all diagrams is available in the `diagrams/` folder:
 - `Cornelius_App_Diagrams.pdf` - Complete PDF with all diagrams
 - Individual PNG files for each diagram
 
-## 📱 Mobile Support
+## Mobile Support
 
 The app is optimized for mobile devices with:
 - Fixed header and bottom navigation
@@ -91,7 +91,7 @@ The app is optimized for mobile devices with:
 - Safe area inset support for notched devices
 - Responsive layouts
 
-## 🎨 Design System
+## Design System
 
 - **Primary Color:** `#3b82f6` (Blue)
 - **Secondary Color:** `#8b5cf6` (Purple)
@@ -99,6 +99,6 @@ The app is optimized for mobile devices with:
 - **Warning:** `#f59e0b` (Amber)
 - **Danger:** `#ef4444` (Red)
 
-## 📝 License
+## License
 
 MIT License
